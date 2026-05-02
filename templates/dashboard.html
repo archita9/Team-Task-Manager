@@ -168,4 +168,62 @@
         {% endfor %}
     </div>
 </div>
+
+<div class="grid-2" style="margin-top: 40px; margin-bottom: 40px;">
+    <div class="glass-panel">
+        <h3>Task Analytics</h3>
+        <canvas id="taskChart" style="max-height: 300px; margin-top: 16px;"></canvas>
+    </div>
+    
+    <div class="glass-panel">
+        <h3>Recent Activity Log (Audit Trail)</h3>
+        <ul style="list-style: none; margin-top: 16px;">
+            {% for log in recent_activities %}
+            <li style="margin-bottom: 16px; font-size: 0.9rem; border-left: 2px solid var(--primary-color); padding-left: 12px;">
+                <strong style="color: white;">{{ log.user.username }}</strong> <span style="color: var(--text-muted);">{{ log.action }}</span>
+                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 4px;">{{ log.timestamp.strftime('%b %d, %H:%M') }}</div>
+            </li>
+            {% else %}
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No recent activity.</p>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('taskChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['To Do', 'In Progress', 'Done'],
+            datasets: [{
+                data: [{{ to_do|length }}, {{ in_progress|length }}, {{ done|length }}],
+                backgroundColor: [
+                    'rgba(148, 163, 184, 0.5)',
+                    'rgba(99, 102, 241, 0.5)',
+                    'rgba(16, 185, 129, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(148, 163, 184, 1)',
+                    'rgba(99, 102, 241, 1)',
+                    'rgba(16, 185, 129, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#f8fafc' }
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

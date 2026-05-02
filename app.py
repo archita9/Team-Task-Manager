@@ -48,6 +48,18 @@ class Task(db.Model):
     assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='activities', lazy=True)
+
+def log_activity(user_id, action):
+    log = ActivityLog(user_id=user_id, action=action)
+    db.session.add(log)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -122,11 +134,14 @@ def dashboard():
     in_progress = [t for t in tasks if t.status == 'In Progress']
     done = [t for t in tasks if t.status == 'Done']
 
+    recent_activities = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(8).all()
+
     return render_template('dashboard.html', 
         projects=projects, 
         tasks=tasks, 
         overdue_tasks=overdue_tasks,
-        to_do=to_do, in_progress=in_progress, done=done
+        to_do=to_do, in_progress=in_progress, done=done,
+        recent_activities=recent_activities
     )
 
 @app.route('/project/create', methods=['POST'])
@@ -141,6 +156,7 @@ def create_project():
     if name:
         new_project = Project(name=name, description=description, created_by=current_user.id)
         db.session.add(new_project)
+        log_activity(current_user.id, f"Created new project: {name}")
         db.session.commit()
         flash('Project created successfully.', 'success')
     return redirect(url_for('dashboard'))
@@ -178,6 +194,7 @@ def create_task(project_id):
             created_by=current_user.id
         )
         db.session.add(new_task)
+        log_activity(current_user.id, f"Created task '{title}'")
         db.session.commit()
         flash('Task created successfully.', 'success')
     return redirect(url_for('project_details', project_id=project_id))
@@ -193,6 +210,7 @@ def update_task(task_id):
     status = request.form.get('status')
     if status in ['To Do', 'In Progress', 'Done']:
         task.status = status
+        log_activity(current_user.id, f"Moved task '{task.title}' to {status}")
         db.session.commit()
         flash('Task status updated.', 'success')
     
@@ -204,6 +222,7 @@ def assign_to_me(task_id):
     task = Task.query.get_or_404(task_id)
     if not task.assigned_to:
         task.assigned_to = current_user.id
+        log_activity(current_user.id, f"Claimed task '{task.title}'")
         db.session.commit()
         flash('Task assigned to you successfully.', 'success')
     return redirect(request.referrer or url_for('dashboard'))
