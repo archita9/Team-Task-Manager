@@ -243,7 +243,9 @@ def api_tasks():
         'project_id': t.project_id
     } for t in tasks])
 
+# Ensure database tables are created before the first request
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True, port=5000)
