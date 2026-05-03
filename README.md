@@ -37,5 +37,5 @@ If you want to run my code on your own machine, follow these steps:
 4. Open your web browser and go to `http://127.0.0.1:5000`. You can create an Admin account first to set up some test projects!
 
 ## Links
-* **Live Demo URL:** [Insert your Railway link here]
-* **Demo Video:** [Insert your Video link here]
+* **Live Demo URL:** [https://web-production-83650.up.railway.app/login]
+* **Demo Video:** [https://drive.google.com/file/d/12Mgj5tgKMNx9kVexSOvANpjytZiXuKB9/view?usp=drivesdk]
