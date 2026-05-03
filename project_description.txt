@@ -1,0 +1,13 @@
+Team Task Manager Project Summary
+
+I built this full-stack application to help teams keep track of their ongoing projects and assign tasks efficiently. I decided to build it using Python and Flask for the backend, SQLAlchemy for the database, and pure Vanilla CSS for the frontend design.
+
+The core of the app revolves around Role-Based Access Control (RBAC). When you sign up, you can choose to be an Admin or a Team Member. Admins are the only ones who can create projects and define tasks. Team Members can browse these projects, claim unassigned tasks (using the "Assign to me" button I implemented), and update their progress on a Kanban-style task board.
+
+To make the project stand out and feel like a real enterprise tool, I added two extra features that weren't strictly required:
+1. Data Analytics: I used Chart.js to generate a dynamic doughnut chart on the dashboard. It visualizes the overall health of the tasks (To Do vs In Progress vs Done).
+2. Audit Trail: I created a custom ActivityLog database model. Every time a user makes a significant action (like creating a project or finishing a task), it logs it and displays it as a live feed on the dashboard. This shows accountability, which is important for business tools.
+
+For deployment, the app is hosted on Railway. I made sure the code automatically detects if it's running locally (using a lightweight SQLite file) or in production (using Railway's PostgreSQL database). I also used the pg8000 database driver to ensure there were no deployment crashes.
+
+It was a great challenge getting the database relationships perfectly tied together, especially ensuring that if a project gets deleted, all its tasks are cleanly removed from the database as well (cascading deletes).
